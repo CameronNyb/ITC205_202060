@@ -3,6 +3,7 @@ package library;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.List;
 
 import library.borrowbook.BorrowBookControl;
 import library.borrowbook.BorrowBookUI;
@@ -38,6 +39,79 @@ public class Main {
 	private static LibraryFileHelper libraryHelper;
 	private static CalendarFileHelper calendarHelper;
 
+    private static void testBug(int test) {
+        switch (test) {
+        
+        // Bug case 1
+        case 1:
+            // Check if a loan exists
+            List<ILoan> listLoans = library.getCurrentLoansList();
+            ILoan loan;
+            if (listLoans.isEmpty()) {
+                // No loan exists, check if a valid book exists or add if n/a                
+                List<IBook> listBooks = library.getBookList();
+                IBook book;
+                if (listBooks.isEmpty()) {
+                    book = library.addBook("Robert Muchamore", "The Recruit", "911");
+                } else {
+                    book = listBooks.get(0);
+                }
+
+                // Check for a valid patron for the loan, or add one
+                List<IPatron> listPatrons = library.getPatronList();
+                IPatron patron;
+                if (listPatrons.isEmpty()) {
+                    patron = library.addPatron("Nyberg", "Cameron", "test@test.com", 911);
+                } else {
+                    patron = listPatrons.get(0);
+                }
+
+                // Create the loan
+                loan = library.issueLoan(book, patron);
+                library.commitLoan(loan);
+            } else {
+                // Loan found, retrieve it
+                loan = listLoans.get(0);
+            }
+            
+            // Book isn't overdue, let's fix that
+            // Code just straight up doesn't work as expected..
+            /*
+            Date dueDate = loan.getDueDate();
+            Date curDate = calendar.getDate();
+            if (!curDate.after(dueDate)) {
+                int addDays = ((int) calendar.getDaysDifference(dueDate));
+                calendar.incrementDate(addDays);
+                library.checkCurrentLoansOverDue();
+            }
+            */
+
+            // Bad solution
+            calendar.incrementDate(3);
+            library.checkCurrentLoansOverDue();
+
+            // Retrieve the book ID (so we can return it)
+            IBook loanBook = loan.getBook();
+            int bookId = loanBook.getId();
+
+            // Choice : r
+            IReturnBookControl returnBookControl = new ReturnBookControl(library);    
+            new ReturnBookUI(returnBookControl);
+
+            // Scan Book (<enter> completes): 1
+            returnBookControl.bookScanned(bookId);
+
+            // Is book damaged (Y/N): n
+            returnBookControl.dischargeLoan(false);
+
+            break;
+        
+        default:
+            output("\nInvalid test option\n");
+            break;
+        }
+    }
+
 	private static String getMenuString() {
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -45,7 +119,8 @@ public class Main {
 				.append("\n").append("  B  : add book\n").append("  LB : list books\n").append("  FB : fix books\n")
 				.append("\n").append("  L  : take out a loan\n").append("  R  : return a loan\n")
 				.append("  LL : list loans\n").append("\n").append("  P  : pay fine\n").append("\n")
-				.append("  T  : increment date\n").append("  Q  : quit\n").append("\n").append("Choice : ");
+                .append("  T  : increment date\n\n").append("  B1  : test Bug 1\n\n")
+                .append("  Q  : quit\n").append("\n").append("Choice : ");
 
 		return stringBuilder.toString();
 	}
@@ -129,6 +204,10 @@ public class Main {
 					calendarHelper.saveCalendar();
 					libraryHelper.saveLibrary(library);
 					break;
+
+                case "B1":
+                    testBug(1);
+                    break;
 
 				case "Q":
 					isDone = true;
