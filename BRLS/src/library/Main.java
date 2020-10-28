@@ -44,9 +44,11 @@ public class Main {
         
         // Bug case 1
         case 1:
+        case 2:
             // Check if a loan exists
             List<ILoan> listLoans = library.getCurrentLoansList();
             ILoan loan;
+            IPatron patron;
             if (listLoans.isEmpty()) {
                 // No loan exists, check if a valid book exists or add if n/a                
                 List<IBook> listBooks = library.getBookList();
@@ -59,7 +61,6 @@ public class Main {
 
                 // Check for a valid patron for the loan, or add one
                 List<IPatron> listPatrons = library.getPatronList();
-                IPatron patron;
                 if (listPatrons.isEmpty()) {
                     patron = library.addPatron("Nyberg", "Cameron", "test@test.com", 911);
                 } else {
@@ -72,6 +73,7 @@ public class Main {
             } else {
                 // Loan found, retrieve it
                 loan = listLoans.get(0);
+                patron = loan.getPatron();
             }
             
             // Book isn't overdue, let's fix that
@@ -104,6 +106,10 @@ public class Main {
             // Is book damaged (Y/N): n
             returnBookControl.dischargeLoan(false);
 
+            if (test == 2) {
+                output(patron);
+            }
+
             break;
         
         default:
@@ -119,7 +125,7 @@ public class Main {
 				.append("\n").append("  B  : add book\n").append("  LB : list books\n").append("  FB : fix books\n")
 				.append("\n").append("  L  : take out a loan\n").append("  R  : return a loan\n")
 				.append("  LL : list loans\n").append("\n").append("  P  : pay fine\n").append("\n")
-                .append("  T  : increment date\n\n").append("  B1  : test Bug 1\n\n")
+                .append("  T  : increment date\n\n").append("  B1  : test Bug 1\n").append("  B2  : test Bug 2\n\n")
                 .append("  Q  : quit\n").append("\n").append("Choice : ");
 
 		return stringBuilder.toString();
@@ -207,6 +213,10 @@ public class Main {
 
                 case "B1":
                     testBug(1);
+                    break;
+
+                case "B2":
+                    testBug(2);
                     break;
 
 				case "Q":
