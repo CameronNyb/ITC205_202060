@@ -57,7 +57,7 @@ public class ReturnBookControl implements IReturnBookControl {
 		returnBookUI.display(currentLoan);
 
 		if (currentLoan.isOverDue()) {
-			returnBookUI.display(String.format("\nOverdue fine : $%.2f", overDueFine));
+			returnBookUI.display(String.format("\nOverdue fine : $%.2f", (overDueFine * 2)));
 		}
 		returnBookUI.setState(IReturnBookUI.UIStateConstants.INSPECTING);
 		controlState = ControlStateConstants.INSPECTING;
